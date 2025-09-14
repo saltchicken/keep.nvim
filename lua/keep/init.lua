@@ -31,6 +31,7 @@ function M.setup(opts)
 		desc = "Pick a note file",
 		silent = true,
 	})
+	vim.api.nvim_create_user_command("KeepNotes", M.pick_note, {})
 end
 
 -- Picker using snacks.nvim
@@ -109,13 +110,13 @@ function M.open_notes()
 
 	local buf = create_notes_buffer()
 	local opts = vim.tbl_deep_extend("force", config.float_opts, {
-		col = math.floor((vim.o.columns - config.float_opts.width) / 2),
-		row = math.floor((vim.o.lines - config.float_opts.height) / 2),
+		-- col = math.floor((vim.o.columns - config.float_opts.width) / 2),
+		-- row = math.floor((vim.o.lines - config.float_opts.height) / 2),
 		title = " " .. vim.fn.fnamemodify(config.current_file, ":t") .. " ",
 	})
 
 	float_win = vim.api.nvim_open_win(buf, true, opts)
-	vim.api.nvim_win_set_option(float_win, "winhl", "Normal:Normal,FloatBorder:FloatBorder")
+	-- vim.api.nvim_win_set_option(float_win, "winhl", "Normal:Normal,FloatBorder:FloatBorder")
 
 	vim.keymap.set("n", "<Esc>", M.close_notes, { buffer = buf, silent = true })
 	vim.keymap.set("n", "q", M.close_notes, { buffer = buf, silent = true })
@@ -123,8 +124,8 @@ end
 
 function M.close_notes()
 	if float_win and vim.api.nvim_win_is_valid(float_win) then
-		vim.api.nvim_win_close(float_win, false)
-		float_win = nil
+		-- vim.api.nvim_win_close(float_win, false)
+		-- float_win = nil
 	end
 end
 
