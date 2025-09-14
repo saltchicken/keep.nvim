@@ -31,6 +31,9 @@ function M.setup(opts)
 		desc = "Pick a note file",
 		silent = true,
 	})
+	vim.api.nvim_create_user_command("KeepNotes", function()
+		require("keep").toggle()
+	end, { desc = "Toggle Keep Notes" })
 end
 
 -- Picker using snacks.nvim
