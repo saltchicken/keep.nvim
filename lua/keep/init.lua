@@ -3,7 +3,7 @@ local M = {}
 -- Default configuration
 local config = {
 	notes_dir = vim.fn.expand("~/.config/nvim/notes/"), -- directory for notes
-	current_file = nil, -- currently open note
+	current_file = nil, -- active note
 	float_opts = {
 		relative = "editor",
 		width = 80,
@@ -14,44 +14,43 @@ local config = {
 		title = " Notes ",
 		title_pos = "center",
 	},
-	picker_opts = {
-		width = 40,
-		height = math.floor(vim.o.lines * 0.8),
-		row = math.floor(vim.o.lines * 0.1),
-		col = math.floor((vim.o.columns - 40) / 2),
-		border = "rounded",
-		title = " Notes Picker ",
-		title_pos = "center",
-	},
 }
 
--- Floating window and buffer
+-- Store floating window and buffer
 local float_win = nil
 local float_buf = nil
 
--- Setup function
+-- Setup
 function M.setup(opts)
 	config = vim.tbl_deep_extend("force", config, opts or {})
 	config.notes_dir = vim.fn.expand(config.notes_dir)
 
-	-- ensure directory exists
+	-- ensure dir exists
 	vim.fn.mkdir(config.notes_dir, "p")
 
-	-- Map <leader>kn to open floating picker
+	-- Explorer keymap (floating explorer for notes)
 	vim.keymap.set("n", "<leader>kn", function()
-		local snacks = require("snacks")
-		snacks.picker.files({
+		require("snacks").explorer.open({
 			cwd = config.notes_dir,
-			preview = true,
-			float = config.picker_opts,
-			on_select = function(item)
+			-- floating sidebar instead of left panel
+			float = {
+				relative = "editor",
+				width = 40,
+				height = math.floor(vim.o.lines * 0.8),
+				row = math.floor(vim.o.lines * 0.1),
+				col = math.floor((vim.o.columns - 40) / 2),
+				border = "rounded",
+				title = "Notes Explorer",
+				title_pos = "center",
+			},
+			on_open = function(item)
 				M.open_notes_with(item.path)
 			end,
 		})
-	end, { desc = "Open Notes (floating picker)" })
+	end, { desc = "Notes Explorer (floating)" })
 end
 
--- Create or reuse buffer
+-- internal: create or reuse buffer
 local function create_notes_buffer()
 	if float_buf and vim.api.nvim_buf_is_valid(float_buf) then
 		return float_buf
@@ -71,7 +70,7 @@ local function create_notes_buffer()
 
 	local augroup = vim.api.nvim_create_augroup("KeepNvim", { clear = false })
 
-	-- Save on :w
+	-- save handler
 	vim.api.nvim_create_autocmd("BufWriteCmd", {
 		group = augroup,
 		buffer = float_buf,
@@ -85,7 +84,7 @@ local function create_notes_buffer()
 		end,
 	})
 
-	-- Save on quit
+	-- handle :wq or quit
 	vim.api.nvim_create_autocmd("QuitPre", {
 		group = augroup,
 		buffer = float_buf,
@@ -102,10 +101,10 @@ local function create_notes_buffer()
 	return float_buf
 end
 
--- Open floating notes window
+-- open floating notes editor
 function M.open_notes()
 	if not config.current_file then
-		print("No note selected. Use <leader>kn to open picker.")
+		print("No note selected. Use <leader>kn to open Explorer.")
 		return
 	end
 
@@ -124,18 +123,17 @@ function M.open_notes()
 	float_win = vim.api.nvim_open_win(buf, true, opts)
 	vim.api.nvim_win_set_option(float_win, "winhl", "Normal:Normal,FloatBorder:FloatBorder")
 
-	-- buffer-local keymaps
 	vim.keymap.set("n", "<Esc>", M.close_notes, { buffer = buf, silent = true })
 	vim.keymap.set("n", "q", M.close_notes, { buffer = buf, silent = true })
 end
 
--- Open a specific note file (called by picker)
+-- open a specific file (called from Snacks Explorer)
 function M.open_notes_with(file)
 	config.current_file = file
 	M.open_notes()
 end
 
--- Close floating window
+-- close window
 function M.close_notes()
 	if float_win and vim.api.nvim_win_is_valid(float_win) then
 		vim.api.nvim_win_close(float_win, false)
@@ -143,7 +141,7 @@ function M.close_notes()
 	end
 end
 
--- Expose config
+-- expose config
 function M.get_config()
 	return config
 end
