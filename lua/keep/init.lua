@@ -23,6 +23,9 @@ local float_buf = nil
 function M.setup(opts)
 	config = vim.tbl_deep_extend("force", config, opts or {})
 
+	-- Expand the notes_file path to handle ~ and other path expansions
+	config.notes_file = vim.fn.expand(config.notes_file)
+
 	-- Create keymapping
 	vim.keymap.set("n", "<leader>kn", M.open_notes, {
 		desc = "Open floating notes",
