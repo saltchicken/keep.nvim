@@ -28,17 +28,26 @@ function M.setup(opts)
 	-- ensure dir exists
 	vim.fn.mkdir(config.notes_dir, "p")
 
-	-- Explorer keymap (sidebar for notes)
+	-- Explorer keymap (floating explorer for notes)
 	vim.keymap.set("n", "<leader>kn", function()
 		require("snacks").explorer.open({
 			cwd = config.notes_dir,
-			layout = "left",
-			width = 30,
+			-- floating sidebar instead of left panel
+			float = {
+				relative = "editor",
+				width = 40,
+				height = math.floor(vim.o.lines * 0.8),
+				row = math.floor(vim.o.lines * 0.1),
+				col = math.floor((vim.o.columns - 40) / 2),
+				border = "rounded",
+				title = "Notes Explorer",
+				title_pos = "center",
+			},
 			on_open = function(item)
 				M.open_notes_with(item.path)
 			end,
 		})
-	end, { desc = "Notes Explorer" })
+	end, { desc = "Notes Explorer (floating)" })
 end
 
 -- internal: create or reuse buffer
@@ -92,7 +101,7 @@ local function create_notes_buffer()
 	return float_buf
 end
 
--- open floating window
+-- open floating notes editor
 function M.open_notes()
 	if not config.current_file then
 		print("No note selected. Use <leader>kn to open Explorer.")
