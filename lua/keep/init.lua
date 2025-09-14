@@ -1,6 +1,5 @@
 local M = {}
 
--- Default configuration
 M.config = {
 	dir = vim.fn.expand("~/.config/nvim/keepnotes"),
 }
@@ -31,17 +30,30 @@ function M.open_first()
 	end
 end
 
--- Open the snacks explorer
-function M.open_picker()
-	require("snacks").explorer.open({
+-- Open the snacks explorer and reveal the current file
+function M.open_explorer()
+	local snacks = require("snacks")
+	snacks.explorer.open({
 		cwd = M.config.dir,
+		path = vim.api.nvim_buf_get_name(0), -- reveal current buffer
+	})
+
+	-- Auto-update explorer selection when switching buffers
+	vim.api.nvim_create_autocmd("BufEnter", {
+		group = vim.api.nvim_create_augroup("KeepNotesExplorer", { clear = true }),
+		callback = function()
+			local buf_path = vim.api.nvim_buf_get_name(0)
+			if buf_path:find(M.config.dir, 1, true) == 1 then
+				snacks.explorer.reveal(buf_path)
+			end
+		end,
 	})
 end
 
--- Command that opens both first file and explorer
+-- Command that opens first file + explorer
 vim.api.nvim_create_user_command("KeepNotes", function()
 	M.open_first()
-	M.open_picker()
+	M.open_explorer()
 end, {})
 
 return M
