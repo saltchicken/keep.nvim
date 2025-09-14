@@ -16,7 +16,7 @@ function M.open()
 	require("snacks").explorer.open({
 		cwd = M.config.dir,
 		hidden = true,
-		preview = "buffer", --or nil, "file", function(ctx) return ctx.filetype ~= "binary" end
+		-- preview = "buffer", --or nil, "file", function(ctx) return ctx.filetype ~= "binary" end
 		follow = true,
 		layout = "left",
 		width = 30,
