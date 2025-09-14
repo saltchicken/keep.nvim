@@ -16,7 +16,7 @@ function M.open()
 	require("snacks").explorer.open({
 		cwd = M.config.dir,
 		width = 30,
-		root = false,
+		show_root = false,
 	})
 end
 
