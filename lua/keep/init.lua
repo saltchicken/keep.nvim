@@ -1,50 +1,47 @@
--- keep.lua
 local M = {}
 
 -- Default configuration
 M.config = {
 	dir = vim.fn.expand("~/.config/nvim/keepnotes"),
-	sidebar_width = 40,
-	preview_width = 80,
 }
 
---- Setup function (for user overrides)
--- @param opts table
 function M.setup(opts)
 	M.config = vim.tbl_extend("force", M.config, opts or {})
-
-	vim.api.nvim_create_user_command("KeepNotes", function()
-		M.open_notes_explorer()
-	end, {})
 end
 
---- Open Snacks Explorer with persistent preview
-function M.open_notes_explorer()
-	local snacks = require("snacks")
+-- Open the first file in the configured directory
+function M.open_first()
+	local dir = vim.fn.expand(M.config.dir)
+	local all_files = vim.fn.readdir(dir)
+	local files = {}
 
-	snacks.explorer.open({
-		cwd = M.config.notes_dir,
-		layout = "left", -- sidebar style
-		width = M.config.sidebar_width,
-		preview = {
-			enabled = true, -- always enable preview
-			win = {
-				relative = "editor",
-				width = M.config.preview_width,
-			},
-		},
-		on_load = function(picker)
-			-- Enter to open the file
-			picker:map("n", "<CR>", function()
-				picker:select({ open = "edit" })
-			end)
+	for _, name in ipairs(all_files) do
+		local full_path = dir .. "/" .. name
+		if vim.fn.isdirectory(full_path) == 0 then
+			table.insert(files, name)
+		end
+	end
 
-			-- Force preview refresh
-			picker:map("n", "<Tab>", function()
-				picker:preview()
-			end)
-		end,
+	if #files > 0 then
+		table.sort(files)
+		local first_file = dir .. "/" .. files[1]
+		vim.cmd.edit(first_file)
+	else
+		vim.notify("No files found in " .. dir, vim.log.levels.WARN)
+	end
+end
+
+-- Open the snacks explorer
+function M.open_picker()
+	require("snacks").explorer.open({
+		cwd = M.config.dir,
 	})
 end
+
+-- Command that opens both first file and explorer
+vim.api.nvim_create_user_command("KeepNotes", function()
+	M.open_first()
+	M.open_picker()
+end, {})
 
 return M
