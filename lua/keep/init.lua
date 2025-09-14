@@ -36,7 +36,6 @@ function M.setup(opts)
 		M.pick_note()
 	end, {
 		desc = "Open the notes picker (same as <leader>kn)",
-		silent = true,
 	})
 end
 
