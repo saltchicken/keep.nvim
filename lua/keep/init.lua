@@ -34,20 +34,20 @@ end
 function M.open_explorer()
 	local snacks = require("snacks")
 
-	-- keep a reference
+	-- open sidebar explorer
 	local explorer = snacks.explorer.open({
 		cwd = M.config.dir,
 		path = vim.api.nvim_buf_get_name(0),
 		layout = { preset = "sidebar", preview = "main" },
 		focus = "list",
-		jump = { close = false }, -- do not close explorer when confirming
+		jump = { close = false }, -- don't close on confirm
 		auto_close = false,
 		follow_file = true,
 	})
 
 	-- Keep selection synced when switching buffers
 	vim.api.nvim_create_autocmd("BufEnter", {
-		group = vim.api.nvim_create_augroup("KeepNotesExplorer", { clear = true }),
+		group = vim.api.nvim_create_augroup("KeepNotesExplorerSync", { clear = true }),
 		callback = function()
 			local buf_path = vim.api.nvim_buf_get_name(0)
 			if buf_path:find(M.config.dir, 1, true) == 1 and explorer and explorer.reveal then
@@ -58,13 +58,13 @@ function M.open_explorer()
 		end,
 	})
 
-	-- Force preview mode whenever you re-enter the explorer window
-	vim.api.nvim_create_autocmd("BufWinEnter", {
+	-- Force preview mode back on whenever you re-enter the explorer
+	vim.api.nvim_create_autocmd("WinEnter", {
 		group = vim.api.nvim_create_augroup("KeepNotesExplorerPreview", { clear = true }),
 		callback = function()
-			if explorer and explorer.preview then
+			if vim.bo.filetype == "snacks_explorer" and explorer and explorer.set_mode then
 				pcall(function()
-					explorer:preview(vim.api.nvim_buf_get_name(0))
+					explorer:set_mode("preview")
 				end)
 			end
 		end,
