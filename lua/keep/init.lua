@@ -30,21 +30,23 @@ function M.open_first()
 	end
 end
 
--- Open the snacks explorer and reveal the current file
+-- Open the snacks explorer and keep it synced
 function M.open_explorer()
 	local snacks = require("snacks")
-	snacks.explorer.open({
+
+	-- open sidebar explorer
+	local explorer = snacks.explorer.open({
 		cwd = M.config.dir,
-		path = vim.api.nvim_buf_get_name(0), -- reveal current buffer
+		path = vim.api.nvim_buf_get_name(0), -- highlight current buffer
 	})
 
-	-- Auto-update explorer selection when switching buffers
+	-- Auto-update selection in explorer when switching buffers
 	vim.api.nvim_create_autocmd("BufEnter", {
 		group = vim.api.nvim_create_augroup("KeepNotesExplorer", { clear = true }),
 		callback = function()
 			local buf_path = vim.api.nvim_buf_get_name(0)
-			if buf_path:find(M.config.dir, 1, true) == 1 then
-				snacks.explorer.reveal(buf_path)
+			if buf_path:find(M.config.dir, 1, true) == 1 and explorer and explorer.reveal then
+				explorer:reveal(buf_path) -- keep sidebar in sync
 			end
 		end,
 	})
