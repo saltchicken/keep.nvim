@@ -9,30 +9,29 @@ function M.setup(opts)
 	M.config = vim.tbl_extend("force", M.config, opts or {})
 end
 
--- Open the first file in the configured directory
 function M.open_first()
-	local all_files = vim.fn.readdir(M.config.dir) -- get everything
+	local dir = vim.fn.expand(M.config.dir) -- make sure ~ is expanded
+	vim.notify("Looking in directory: " .. dir)
 
-	-- filter out directories and hidden files
+	local all_files = vim.fn.readdir(dir)
+	vim.notify("Found files: " .. table.concat(all_files, ", "))
+
 	local files = {}
 	for _, name in ipairs(all_files) do
-		local full_path = M.config.dir .. "/" .. name
-		if vim.fn.isdirectory(full_path) == 0 and name:sub(1, 1) ~= "." then
+		local full_path = dir .. "/" .. name
+		if vim.fn.isdirectory(full_path) == 0 then -- is a file
 			table.insert(files, name)
 		end
 	end
 
 	if #files > 0 then
-		table.sort(files) -- ensure consistent first
-		local first_file = M.config.dir .. "/" .. files[1]
+		table.sort(files)
+		local first_file = dir .. "/" .. files[1]
+		vim.notify("Opening file: " .. first_file)
 		vim.cmd.edit(first_file)
 	else
-		vim.notify("No files found in " .. M.config.dir, vim.log.levels.WARN)
+		vim.notify("No files found in " .. dir, vim.log.levels.WARN)
 	end
-end
-
-function M.open_picker()
-	require("snacks").explorer.open({ cwd = M.config.dir })
 end
 
 vim.api.nvim_create_user_command("KeepNotes", function()
