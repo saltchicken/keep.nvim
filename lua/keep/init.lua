@@ -32,7 +32,7 @@ function M.setup(opts)
 		silent = true,
 	})
 	vim.api.nvim_create_user_command("KeepNotes", function()
-		require("keep").toggle()
+		M.pick_note()
 	end, { desc = "Toggle Keep Notes" })
 end
 
