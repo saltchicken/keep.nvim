@@ -33,10 +33,10 @@ function M.setup(opts)
 	})
 
 	vim.api.nvim_create_user_command("KeepNotes", function()
-		M.pick_note()
-	end, {
-		desc = "Open the notes picker (same as <leader>kn)",
-	})
+		vim.schedule(function() -- schedules it in the main event loop
+			M.pick_note()
+		end)
+	end, { desc = "Open the notes picker (same as <leader>kn)" })
 end
 
 -- Picker using snacks.nvim
