@@ -1,4 +1,3 @@
--- lua/mydirpicker/init.lua
 local M = {}
 
 -- Default configuration
@@ -16,6 +15,9 @@ end
 function M.open()
 	require("snacks").explorer.open({
 		cwd = M.config.dir,
+		hidden = true,
+		preview = "buffer", --or nil, "file", function(ctx) return ctx.filetype ~= "binary" end
+		follow = true,
 		layout = "left",
 		width = 30,
 		on_open = function(item)
@@ -26,7 +28,6 @@ function M.open()
 	})
 end
 
--- Create a user command
 vim.api.nvim_create_user_command("KeepNotes", function()
 	M.open()
 end, {})
