@@ -15,15 +15,9 @@ end
 function M.open()
 	require("snacks").explorer.open({
 		cwd = M.config.dir,
-		-- hidden = true,
-		-- follow = true,
-		-- layout = { preset = "sidebar", preview = true },
 		width = 30,
-		on_open = function(item)
-			print(item.path)
-			-- tell keep.nvim to open the note in floating window
-			-- keep.open_notes_with(item.path)
-		end,
+		hidden_root = true,
+		no_hidden = true,
 	})
 end
 
