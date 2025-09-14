@@ -3,7 +3,7 @@ local M = {}
 
 -- Default configuration
 M.config = {
-	notes_dir = vim.fn.expand("~/.config/nvim/keepnotes"),
+	dir = vim.fn.expand("~/.config/nvim/keepnotes"),
 	sidebar_width = 40,
 	preview_width = 80,
 }
