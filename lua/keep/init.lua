@@ -17,7 +17,7 @@ function M.open()
 		cwd = M.config.dir,
 		hidden = true,
 		follow = true,
-		layout = { preview = true },
+		layout = { preset = "sidebar", preview = true },
 		width = 30,
 		on_open = function(item)
 			print(item.path)
