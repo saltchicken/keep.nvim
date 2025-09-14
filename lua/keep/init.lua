@@ -15,9 +15,9 @@ end
 function M.open()
 	require("snacks").explorer.open({
 		cwd = M.config.dir,
-		hidden = true,
-		follow = true,
-		layout = { preset = "sidebar", preview = true },
+		-- hidden = true,
+		-- follow = true,
+		-- layout = { preset = "sidebar", preview = true },
 		width = 30,
 		on_open = function(item)
 			print(item.path)
